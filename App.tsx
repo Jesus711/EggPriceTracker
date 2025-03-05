@@ -25,10 +25,11 @@ import { stores } from './constants';
 const App = () => {
   const [scrapedData, setScrapedData] = useState< {[key: string] : EggItemInfo[]}>({});
   const [lastRetrievedDate, setLastRetrievedDate] = useState<string>("");
-  const [isLoading, setIsLoading] = useState<boolean[]>(stores.map(() => true));
-  const [locatedPrevPrices, setLocatedPrevPrices] = useState<boolean>(false);
+  const [loadingStates, setloadingStates] = useState<boolean[]>(stores.map(() => true));
+  const [isLoading, setIsLoading] = useState<boolean>(true);
+  const [locatedPrevPrices, setLocatedPrevPrices] = useState<boolean>(true);
   const webViewRefs: RefObject<WebView>[] = useRef(stores.map(() => React.createRef<WebView>())).current;
-  const isAllLoaded: boolean = !isLoading.some((loading) => loading);
+  const isAllLoaded: boolean = !loadingStates.some((loading) => loading);
   
   const isDarkMode = useColorScheme() === 'dark';
 
@@ -37,13 +38,22 @@ const App = () => {
   };
 
   const handleLoadEnd = (index: number) => {
-    setIsLoading((prev) => {
+    setloadingStates((prev) => {
       const newStates = [...prev]
       newStates[index] = false;
       return newStates
     })
   }
 
+  const clearStorage = async () => {
+    try {
+      AsyncStorage.clear()
+      console.log("Cleared storage")
+    }
+    catch (e) {
+      console.log("Failed to clear")
+    }
+  }
 
   const storeUpdatedPrices = async () => {
     let dataToStore = {
@@ -54,9 +64,19 @@ const App = () => {
     console.log("Stored Updated Prices")
   }
 
+  const handlePricesReload = () => {
+    setScrapedData({});
+    setLocatedPrevPrices(false)
+    console.log("Reloading...");
+    for(let i = 0; i < stores.length; i++){
+      webViewRefs[i].current?.reload();
+    }
+    setloadingStates(stores.map(() => (true)))
+  }
+
   // Handle messages from WebView
   const handleMessage = (index: number, storeName: string, event: WebViewMessageEvent, handleData: (data: StorePageInfo[]) => EggItemInfo[]) => {
-    if(!isLoading[index]){
+    if(!loadingStates[index]){
       return
     }
     let currentTime: string = new Date().toDateString();
@@ -79,15 +99,21 @@ const App = () => {
     const loadPrices = async () => {
       let last_prices = await AsyncStorage.getItem("egg_prices")
       if (last_prices !== null) {
-        let data = JSON.parse(last_prices)
-        let lastRetrievedDate = data.date
+        let data: {date: string, egg_prices: {[key: string] : EggItemInfo[]}} = JSON.parse(last_prices)
+        let lastRetrievedDate: string = data.date
+        let egg_prices: {[key: string] : EggItemInfo[]} = data.egg_prices
         setLastRetrievedDate(lastRetrievedDate)
-        setScrapedData(data.egg_prices)
+        setScrapedData(egg_prices)
         console.log("Retrieved last Prices")
-        setLocatedPrevPrices(true)
+        console.log(egg_prices)
+        if (egg_prices === undefined){
+          setLocatedPrevPrices(false)
+        }
+        return
       }
     }
     loadPrices()
+    setIsLoading(false)
   }, [])
 
   return (
@@ -108,16 +134,11 @@ const App = () => {
 
       {/* Reload Prices Button */}
       <View className='px-12 py-3'>
-        <TouchableOpacity className='bg-green-400 py-2 flex flex-row justify-center rounded-xl' onPress={() => {
-          setScrapedData({});
-          setLocatedPrevPrices(false)
-          console.log("Reloading...");
-          for(let i = 0; i < stores.length; i++){
-            webViewRefs[i].current?.reload();
-          }
-          setIsLoading(stores.map(() => (true)))
-          }}>
+        <TouchableOpacity className='bg-green-400 py-2 flex flex-row justify-center rounded-xl' onPress={handlePricesReload}>
           <Text className='text-[20px] text-gray-800 font-semibold'>Reload All Prices</Text>
+        </TouchableOpacity>
+        <TouchableOpacity className='bg-red-400 py-2 flex flex-row justify-center rounded-xl' onPress={clearStorage}>
+          <Text className='text-[20px] text-gray-800 font-semibold'>Delete Prices</Text>
         </TouchableOpacity>
         {lastRetrievedDate && <Text className='text-[16px] mt-1 text-green-400 font-semibold text-center'>Last Retrieved: {lastRetrievedDate}</Text>}
       </View>
@@ -127,13 +148,12 @@ const App = () => {
           <Text className='text-center text-[36px] text-green-300 mb-4'>Stores Remaining:</Text>
           {stores.map((store, index) => {
             return (
-              <View key={index} className={`flex-1 p-4 ${!isLoading[index] ? "hidden": ""}`}>
+              <View key={index} className={`flex-1 p-4 ${!loadingStates[index] ? "hidden": ""}`}>
                 <Text className='text-center text-[24px] text-green-300'>Retrieving {store.name} Prices...</Text>
                 <WebView
                   className=''
                   ref={webViewRefs[index]}
                   source={{ uri: store.url }} // Change to your target website
-                  //onLoadEnd={() => webViewRefs[index].current?.injectJavaScript(store.script)}
                   injectedJavaScript={store.script}
                   onMessage={(e) => handleMessage(index, store.name, e, store.format)} // Receive messages from WebView
                 />
@@ -143,7 +163,14 @@ const App = () => {
         </View>
     )}
 
-      {(locatedPrevPrices || isAllLoaded) && stores.map((store, index) => (
+      {/* Shows loading text when trying to retrieve presious stored prices */}
+      {isLoading && (<View className='flex-1 justify-center items-center'>
+        <Text className='text-green-400 text-[32px] font-bold text-center'>Loading...</Text>
+      </View>)
+      }
+
+      {/* Is displayed after retrieve from async storage is finished and (prices were retrieved or Reload all prices is completed) */}
+      {!isLoading && (locatedPrevPrices || isAllLoaded) && stores.map((store, index) => (
         <StoreList key={store.name} index={index} name={store.name} scrapedData={scrapedData[store.name]} />
       ))}
 
