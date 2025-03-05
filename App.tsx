@@ -1,8 +1,7 @@
-import React, { RefObject, useRef, useState } from 'react';
+import React, { RefObject, useEffect, useRef, useState } from 'react';
 import {
   Image,
   SafeAreaView,
-  ScrollView,
   StatusBar,
   Text,
   TouchableOpacity,
@@ -13,6 +12,8 @@ import {
 import {
   Colors,
 } from 'react-native/Libraries/NewAppScreen';
+
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 import { WebView, WebViewMessageEvent } from "react-native-webview";
 import { Images } from './images/images';
@@ -89,12 +90,13 @@ interface Store {
 
 const stores: Store[] = [
   {
-  name: "Walmart", 
-  url: "https://www.walmart.com/search?q=eggs&typeahead=eggs",
-  format: formatWalmartData,
-  script: walmartJS
+    name: "Walmart", 
+    url: "https://www.walmart.com/search?q=eggs&typeahead=eggs",
+    format: formatWalmartData,
+    script: walmartJS
   }, 
-  {name: "Target", 
+  { 
+    name: "Target", 
     url:"https://www.target.com/c/eggs-dairy-grocery/-/N-5xszi",
     format: formatTargetData,
     script: targetJS
@@ -105,8 +107,15 @@ const App = () => {
   const [scrapedData, setScrapedData] = useState< {[key: string] : EggItemInfo[]}>({});
   const [lastRetrievedDate, setLastRetrievedDate] = useState<string>("");
   const [isLoading, setIsLoading] = useState<boolean[]>(stores.map(() => true));
+  const [locatedPrevPrices, setLocatedPrevPrices] = useState<boolean>(false);
   const webViewRefs: RefObject<WebView>[] = useRef(stores.map(() => React.createRef<WebView>())).current;
   const isAllLoaded: boolean = !isLoading.some((loading) => loading);
+  
+  const isDarkMode = useColorScheme() === 'dark';
+
+  const backgroundStyle = {
+    backgroundColor: isDarkMode ? Colors.darker : Colors.lighter,
+  };
 
   const handleLoadEnd = (index: number) => {
     setIsLoading((prev) => {
@@ -116,11 +125,15 @@ const App = () => {
     })
   }
 
-  const isDarkMode = useColorScheme() === 'dark';
 
-  const backgroundStyle = {
-    backgroundColor: isDarkMode ? Colors.darker : Colors.lighter,
-  };
+  const storeUpdatedPrices = async () => {
+    let dataToStore = {
+      date: lastRetrievedDate,
+      egg_prices: scrapedData
+    }
+    AsyncStorage.setItem("egg_prices", JSON.stringify(dataToStore))
+    console.log("Stored Updated Prices")
+  }
 
   // Handle messages from WebView
   const handleMessage = (index: number, storeName: string, event: WebViewMessageEvent, handleData: (data: EggInfo[]) => EggItemInfo[]) => {
@@ -138,6 +151,25 @@ const App = () => {
     console.log(storeName, "DONE", new Date().toTimeString())
     handleLoadEnd(index);
   };
+
+  if(isAllLoaded){
+    storeUpdatedPrices()
+  }
+  useEffect(() => {
+
+    const loadPrices = async () => {
+      let last_prices = await AsyncStorage.getItem("egg_prices")
+      if (last_prices !== null) {
+        let data = JSON.parse(last_prices)
+        let lastRetrievedDate = data.date
+        setLastRetrievedDate(lastRetrievedDate)
+        setScrapedData(data.egg_prices)
+        console.log("Retrieved last Prices")
+        setLocatedPrevPrices(true)
+      }
+    }
+    loadPrices()
+  }, [])
 
   return (
     <SafeAreaView className='flex-1' style={backgroundStyle}>
@@ -159,6 +191,7 @@ const App = () => {
       <View className='px-12 py-3'>
         <TouchableOpacity className='bg-green-400 py-2 flex flex-row justify-center rounded-xl' onPress={() => {
           setScrapedData({});
+          setLocatedPrevPrices(false)
           console.log("Reloading...");
           for(let i = 0; i < stores.length; i++){
             webViewRefs[i].current?.reload();
@@ -170,7 +203,7 @@ const App = () => {
         {lastRetrievedDate && <Text className='text-[16px] mt-1 text-green-400 font-semibold text-center'>Last Retrieved: {lastRetrievedDate}</Text>}
       </View>
 
-      {!isAllLoaded && (
+      {!locatedPrevPrices && !isAllLoaded && (
         <View className='flex-1'>
           <Text className='text-center text-[36px] text-green-300 mb-4'>Stores Remaining:</Text>
           {stores.map((store, index) => {
@@ -178,7 +211,7 @@ const App = () => {
               <View key={index} className={`flex-1 p-4 ${!isLoading[index] ? "hidden": ""}`}>
                 <Text className='text-center text-[24px] text-green-300'>Retrieving {store.name} Prices...</Text>
                 <WebView
-                  className='h-[25px]'
+                  className=''
                   ref={webViewRefs[index]}
                   source={{ uri: store.url }} // Change to your target website
                   //onLoadEnd={() => webViewRefs[index].current?.injectJavaScript(store.script)}
@@ -191,7 +224,7 @@ const App = () => {
         </View>
     )}
 
-      {isAllLoaded && stores.map((store, index) => (
+      {(locatedPrevPrices || isAllLoaded) && stores.map((store, index) => (
         <StoreList key={store.name} index={index} name={store.name} scrapedData={scrapedData[store.name]} />
       ))}
 
