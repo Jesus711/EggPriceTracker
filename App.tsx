@@ -80,14 +80,13 @@ const App = () => {
       return
     }
     let currentTime: string = new Date().toDateString();
-    console.log(event.nativeEvent.data, currentTime)
+    console.log(storeName, event.nativeEvent.data, currentTime)
 
     let formattedData = handleData(JSON.parse(event.nativeEvent.data))
     let newData = {...scrapedData, [storeName]: formattedData};
     setScrapedData(newData); // Update state with scraped data
 
     setLastRetrievedDate(currentTime)
-    console.log(storeName, "DONE", new Date().toTimeString())
     handleLoadEnd(index);
   };
 
@@ -105,7 +104,6 @@ const App = () => {
         setLastRetrievedDate(lastRetrievedDate)
         setScrapedData(egg_prices)
         console.log("Retrieved last Prices")
-        console.log(egg_prices)
         if (egg_prices === undefined){
           setLocatedPrevPrices(false)
         }
@@ -170,9 +168,13 @@ const App = () => {
       }
 
       {/* Is displayed after retrieve from async storage is finished and (prices were retrieved or Reload all prices is completed) */}
-      {!isLoading && (locatedPrevPrices || isAllLoaded) && stores.map((store, index) => (
-        <StoreList key={store.name} index={index} name={store.name} scrapedData={scrapedData[store.name]} />
-      ))}
+      {!isLoading && (locatedPrevPrices || isAllLoaded) && 
+        <View className='justify-center items-center'>
+          {stores.map((store, index) => (
+            <StoreList key={store.name} index={index} name={store.name} scrapedData={scrapedData[store.name]} />
+          ))}
+        </View>
+      }
 
     </SafeAreaView>
   );
