@@ -1,6 +1,6 @@
 import { View, Text, FlatList, TouchableOpacity } from 'react-native'
 import React, { useState } from 'react'
-import { EggInfo, EggItemInfo } from '../types'
+import { EggItemInfo } from '../types'
 import StorePrice from './StorePrice'
 import { styled } from 'nativewind'
 
@@ -15,7 +15,7 @@ interface StoreListProps {
 const StoreList = ({ index, name, scrapedData }: StoreListProps) => {
 
     const [isVisible, setIsVisible] = useState(index === 0);
-    console.log(`LOADED: ${name}`, new Date().toTimeString());
+    //console.log(`LOADED: ${name}`, new Date().toTimeString());
 
     const toggleListButton = () => (
         <TouchableOpacity 
@@ -29,15 +29,13 @@ const StoreList = ({ index, name, scrapedData }: StoreListProps) => {
     )
 
     return (
-        <View>
-            <FlatList
-                className={`mb-3 px-2 ${isVisible ? "h-[300px]" : ""}`}
-                data={isVisible ? scrapedData : []}
-                renderItem={({ item }) => <StorePrice title={item.title} price={item.price} unitPrice={item.unitPrice} image={item.image}/>}
-                ListHeaderComponent={toggleListButton}
-                stickyHeaderIndices={[0]}
-            />
-        </View>
+        <FlatList
+            className={`mb-3 px-2 ${isVisible && scrapedData?.length > 0 ? "h-[300px]" : ""}`}
+            data={isVisible ? scrapedData : []}
+            renderItem={({ item }) => <StorePrice title={item.title} price={item.price} unitPrice={item.unitPrice} image={item.image}/>}
+            ListHeaderComponent={toggleListButton}
+            stickyHeaderIndices={[0]}
+        />
     )
 }
 
