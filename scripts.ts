@@ -35,7 +35,7 @@ const walmartJS = `
 
     // Send data back to React Native
     //window.ReactNativeWebView.postMessage(result);
-    }, 3000); // Wait 5 seconds to ensure content loads
+    }, 3000); // Wait 3 seconds to ensure content loads
 `;
 
 const targetJS = `
@@ -72,11 +72,95 @@ const targetJS = `
 
     // Send the result array to React Native
     window.ReactNativeWebView.postMessage(JSON.stringify(result));
-    }, 10000); // Wait 8 seconds to ensure content loads
+    }, 7000); // Wait 15 seconds to ensure content loads
 `;
 
+const zipcode = 91766
+
+const costcoJS = `
+setTimeout(() => {
+    const zipCodeAdded = document.querySelector('span#bdzip');
+
+    if (!zipCodeAdded) {
+
+        // Click on Set Delivery Zip Code
+        const setZip = document.querySelector('[automation-id="changeDeliveryZipCodeLink"]')
+        setZip.click()
+
+        // Step 2: Click an input element
+        const zipcode = document.querySelector('div#popover374217').querySelector('input[type="text"]');
+        zipcode.click();
+
+        // Step 3: Type in "12345"
+        zipcode.value = ${ zipcode };
+
+        // Step 4: Click on an input type submit element
+        zipcode.querySelector('input[type="submit"]').click();
+
+        window.scrollTo(0, document.body.scrollHeight);
+
+        setTimeout(() => {
+            const texts = Array.from(document.querySelectorAll('div.product'))
+
+            const result = []
+
+            for (let i = 0; i < texts.length; i++) {
+                let storeInfo = {};
+
+                // Extract image src (if image exists)
+                let image = texts[i].querySelector("img");
+                storeInfo.image = image ? image.src : null; // Check if image exists before accessing src
+
+                // Extract the content from the span
+                let content = texts[i].querySelector("div.caption");
+                storeInfo.content = content ? content.innerText : null; // Ensure span exists
+
+                // Push the result to the array
+                if(storeInfo.content){
+                    if (storeInfo.content.includes("Dozen") || storeInfo.content.includes("ct"))
+                        result.push(storeInfo);
+                }
+            }
+
+            // Send the result array to React Native
+            window.ReactNativeWebView.postMessage(JSON.stringify(result));
+        }, 2000);
+
+    } else {
+        setTimeout(() => {
+            const texts = Array.from(document.querySelectorAll('div.product'))
+
+            const result = []
+
+            for (let i = 0; i < texts.length; i++) {
+                let storeInfo = {};
+
+                // Extract image src (if image exists)
+                let image = texts[i].querySelector("img");
+                storeInfo.image = image ? image.src : null; // Check if image exists before accessing src
+
+                // Extract the content from the span
+                let content = texts[i].querySelector("div.caption");
+                storeInfo.content = content ? content.innerText : null; // Ensure span exists
+
+                // Push the result to the array
+                if(storeInfo.content){
+                    if (storeInfo.content.includes("Dozen") || storeInfo.content.includes("ct"))
+                        result.push(storeInfo);
+                }
+
+            }
+
+            // Send the result array to React Native
+            window.ReactNativeWebView.postMessage(JSON.stringify(result));
+        }, 1000);
+    }
+
+}, 3000); // Wait 3 seconds to ensure content loads
+`
 
 export {
     walmartJS,
-    targetJS
+    targetJS,
+    costcoJS
 }
