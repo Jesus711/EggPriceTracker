@@ -26,8 +26,11 @@ const walmartJS = `
         let content = texts[i].querySelector("div");
         storeInfo.content = content ? content.innerText : null; // Ensure span exists
 
-        // Push the result to the array
-        result.push(storeInfo);
+        if (storeInfo.image !== null && storeInfo.content !== null){
+            if (storeInfo.content.includes("Eggs")){
+                result.push(storeInfo);
+            }
+        }
     }
 
     // Send the result array to React Native
@@ -72,10 +75,10 @@ const targetJS = `
 
     // Send the result array to React Native
     window.ReactNativeWebView.postMessage(JSON.stringify(result));
-    }, 7000); // Wait 15 seconds to ensure content loads
+    }, 10000); // Wait 10 seconds to ensure content loads
 `;
 
-const zipcode = 91766
+const zipcode = 90001
 
 const costcoJS = `
 setTimeout(() => {
@@ -124,7 +127,7 @@ setTimeout(() => {
 
             // Send the result array to React Native
             window.ReactNativeWebView.postMessage(JSON.stringify(result));
-        }, 2000);
+        }, 5000);
 
     } else {
         setTimeout(() => {
@@ -153,10 +156,10 @@ setTimeout(() => {
 
             // Send the result array to React Native
             window.ReactNativeWebView.postMessage(JSON.stringify(result));
-        }, 1000);
+        }, 4000);
     }
 
-}, 3000); // Wait 3 seconds to ensure content loads
+}, 4000); // Wait 3 seconds to ensure content loads
 `
 
 export {
