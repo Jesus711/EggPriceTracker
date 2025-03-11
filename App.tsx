@@ -109,6 +109,7 @@ const App = () => {
         }
         return
       }
+      setLocatedPrevPrices(false)
     }
     loadPrices()
     setIsLoading(false)
