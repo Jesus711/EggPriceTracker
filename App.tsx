@@ -5,13 +5,14 @@ import {
   StatusBar,
   Text,
   TouchableOpacity,
-  useColorScheme,
   View,
+  ScrollView
 } from 'react-native';
 
 import {
   Colors,
 } from 'react-native/Libraries/NewAppScreen';
+
 
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
@@ -31,10 +32,8 @@ const App = () => {
   const webViewRefs: RefObject<WebView>[] = useRef(stores.map(() => React.createRef<WebView>())).current;
   const isAllLoaded: boolean = !loadingStates.some((loading) => loading);
   
-  const isDarkMode = useColorScheme() === 'dark';
-
   const backgroundStyle = {
-    backgroundColor: isDarkMode ? Colors.darker : Colors.lighter,
+    backgroundColor: Colors.darker
   };
 
   const handleLoadEnd = (index: number) => {
@@ -66,7 +65,8 @@ const App = () => {
 
   const handlePricesReload = () => {
     setScrapedData({});
-    setLocatedPrevPrices(false)
+    setLocatedPrevPrices(false);
+    setLastRetrievedDate("");
     console.log("Reloading...");
     for(let i = 0; i < stores.length; i++){
       webViewRefs[i].current?.reload();
@@ -107,7 +107,8 @@ const App = () => {
         if (egg_prices === undefined){
           setLocatedPrevPrices(false)
         }
-        return
+        setLocatedPrevPrices(true);
+        return;
       }
       setLocatedPrevPrices(false)
     }
@@ -118,7 +119,7 @@ const App = () => {
   return (
     <SafeAreaView className='flex-1' style={backgroundStyle}>
       <StatusBar
-        barStyle={isDarkMode ? 'light-content' : 'dark-content'}
+        barStyle={'light-content'}
         backgroundColor={backgroundStyle.backgroundColor}
       />
 
@@ -169,12 +170,13 @@ const App = () => {
       }
 
       {/* Is displayed after retrieve from async storage is finished and (prices were retrieved or Reload all prices is completed) */}
-      {!isLoading && (locatedPrevPrices || isAllLoaded) && 
-        <View className='justify-center items-center'>
+      {!isLoading && (locatedPrevPrices || isAllLoaded) &&
+        <ScrollView>
+          <View className='mb-4'><Text className='text-green-400 text-center text-[24px] font-bold'>Tap a Store and Scroll!</Text></View>
           {stores.map((store, index) => (
-            <StoreList key={store.name} index={index} name={store.name} scrapedData={scrapedData[store.name]} />
+            <StoreList key={store?.name + index} index={index} name={store.name} scrapedData={scrapedData[store.name]} />
           ))}
-        </View>
+        </ScrollView>
       }
 
     </SafeAreaView>
