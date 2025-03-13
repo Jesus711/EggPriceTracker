@@ -31,15 +31,16 @@ const StoreList = ({ index, name, scrapedData }: StoreListProps) => {
                 return(
                 <StorePrice key={index} title={item.title} price={item.price} unitPrice={item.unitPrice} image={item.image}/>
             )})}
-            {isVisible && <TouchableOpacity 
-                className={`mx-10 mt-2 mb-3 py-3 rounded-xl bg-red-400`} 
-                onPress={() => setIsVisible((prev) => !prev)}
-            >   
-                <Text className={`font-bold text-black text-[20px] text-center`}>Close {name} Prices</Text>
-            </TouchableOpacity>}
+            {isVisible && 
+                <TouchableOpacity 
+                    className={`mx-10 mt-2 mb-3 py-3 rounded-xl bg-red-400`} 
+                    onPress={() => setIsVisible((prev) => !prev)}
+                >   
+                    <Text className={`font-bold text-black text-[20px] text-center`}>Close {name} Prices</Text>
+                </TouchableOpacity>
+            }
 
             {isVisible && <View className='mx-6 mb-3 border-b-gray-400 border-b-4' />}
-
         </View>
     )
 }
