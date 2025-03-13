@@ -26,8 +26,6 @@ const formatWalmartData = (data: StorePageInfo[]): EggItemInfo[] => {
 const formatTargetData = (data: StorePageInfo[]): EggItemInfo[] => {
     let formatted = []
 
-    console.log(data[0]?.content.split("\n").slice(0, 5));
-
     for (let i = 0; i < data.length; i++) {
 
         let lines = data[i].content.split("\n").slice(0, 5);
@@ -80,7 +78,6 @@ const formatCostcoData = (data: StorePageInfo[]): EggItemInfo[] => {
             let num_price: number = Number(price.slice(1))
             let count: number = Number(itemName.split(' ').slice(-2, -1))
             unitPrice = String((num_price / (count)).toFixed(2) + "¢")
-            console.log(itemName.includes("Dozen"), itemName.includes("ct"))
         }
 
         let item: EggItemInfo = {
