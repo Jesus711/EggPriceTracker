@@ -7,9 +7,13 @@ const formatWalmartData = (data: StorePageInfo[]): EggItemInfo[] => {
     for (let i = 0; i < data.length; i++) {
 
         let lines = data[i].content.split("\n").slice(1, 4);
+        if (data[i].content.includes("Best seller")){
+            lines = data[i].content.split("\n").slice(2, 5);
+        }
         let price: string = lines[0].split(" ").slice(-1)[0]
         let unitPrice: string = lines[1]
         let itemName: string = lines[2]
+
 
         let item: EggItemInfo = {
             title: itemName,
@@ -62,7 +66,6 @@ const formatCostcoData = (data: StorePageInfo[]): EggItemInfo[] => {
     let formatted = []
 
     for (let i = 0; i < data.length; i++) {
-        console.log(data[i].content)
 
         let lines = data[i].content.split("\n");
         let price: string = lines[0]
@@ -94,6 +97,12 @@ const formatCostcoData = (data: StorePageInfo[]): EggItemInfo[] => {
 
 export const stores: Store[] = [
     {
+        name: "Costco",
+        url: "https://www.costcobusinessdelivery.com/eggs.html",
+        format: formatCostcoData,
+        script: costcoJS
+    },
+    {
         name: "Walmart",
         url: "https://www.walmart.com/search?q=eggs&typeahead=eggs",
         format: formatWalmartData,
@@ -101,14 +110,8 @@ export const stores: Store[] = [
     },
     {
         name: "Target",
-        url: "https://www.target.com/c/eggs-dairy-grocery/-/N-5xszi",
+        url: "https://www.target.com/s?searchTerm=eggs",
         format: formatTargetData,
         script: targetJS
     },
-    {
-        name: "Costco",
-        url: "https://www.costcobusinessdelivery.com/eggs.html",
-        format: formatCostcoData,
-        script: costcoJS
-    }
 ];
