@@ -6,11 +6,12 @@ const walmartJS = `
         disconnect() {}
     };
     window.scrollTo(0, document.body.scrollHeight/2);
+
     setTimeout(() => {
-    // Select all paragraph elements and get their text
-    const texts = Array.from(document.querySelectorAll('[data-testid="list-view"]')).slice(1, 5)
-    //.map(el => el.innerText)
-    //.join("\\n\\n"); // Join paragraphs with line breaks
+
+    // Select 10 products displayed
+    const texts = Array.from(document.querySelectorAll('[data-testid="list-view"]')).slice(0, 10)
+
 
     const result = []
 
@@ -35,131 +36,93 @@ const walmartJS = `
 
     // Send the result array to React Native
     window.ReactNativeWebView.postMessage(JSON.stringify(result));
-
-    // Send data back to React Native
-    //window.ReactNativeWebView.postMessage(result);
-    }, 3000); // Wait 3 seconds to ensure content loads
+    }, 4000); // Wait 4 seconds to ensure content loads
 `;
 
 const targetJS = `
-    window.scrollTo(0, document.body.scrollHeight/3);
-    setTimeout(() => {
-        window.scrollTo(0, document.body.scrollHeight/5);
-    }, 2000)
+    // Scroll through document page
+    (function() {
+        const totalHeight = document.body.scrollHeight;
+        const viewportHeight = window.innerHeight;
+        const maxScroll = totalHeight - viewportHeight; // Max scrollable distance
+        const scrollStep = 5; // Pixels per step (adjust for smoothness)
+        const scrollInterval = 2; // Milliseconds between steps (adjust for speed)
+        let currentScroll = 0;
 
-    setTimeout(() => {
-    // Select all paragraph elements and get their text
-    const texts = Array.from(document.querySelectorAll('div.styles_ndsCol__MIQSp'))//.slice(0, 6)
-
-    const result = []
-
-    // Loop over your text elements (assuming texts contains the div elements)
-    for (let i = 0; i < texts.length; i++) {
-        let storeInfo = {};
-
-        // Extract image src (if image exists)
-        let image = texts[i].querySelector("img");
-        storeInfo.image = image ? image.src : null; // Check if image exists before accessing src
-
-        // Extract the content from the span
-        let content = texts[i].querySelector("div");
-        storeInfo.content = content ? content.innerText : null; // Ensure span exists
-
-        // Push the result to the array
-        if (storeInfo.image !== null && storeInfo.content !== null){
-            if (storeInfo.content.includes("Eggs")){
-                result.push(storeInfo);
+        function smoothScroll() {
+            if (currentScroll < maxScroll) {
+                currentScroll += scrollStep;
+                window.scrollTo(0, currentScroll);
+                setTimeout(smoothScroll, scrollInterval);
             }
         }
-    }
 
-    // Send the result array to React Native
-    window.ReactNativeWebView.postMessage(JSON.stringify(result));
+        // Start scrolling
+        smoothScroll();
+    })();
+
+    setTimeout(() => {
+
+        // Get all products
+        const texts = Array.from(document.querySelectorAll('div.sc-4fd1fd45-0'))
+
+        const result = []
+
+        // Loop over your text elements (assuming texts contains the div elements)
+        for (let i = 0; i < texts.length; i++) {
+            let storeInfo = {};
+
+            // Extract image src (if image exists)
+            let image = texts[i].querySelector("img");
+            storeInfo.image = image ? image.src : null; // Check if image exists before accessing src
+
+            // Extract the content from the span
+            let content = texts[i].querySelector("div");
+            storeInfo.content = content ? content.innerText : null; // Ensure span exists
+
+            // Push the result to the array
+            if (storeInfo.image !== null && storeInfo.content !== null){
+                if (storeInfo.content.includes("Eggs")){
+                    result.push(storeInfo);
+                }
+            }
+        }
+        // Send the result array to React Native
+        window.ReactNativeWebView.postMessage(JSON.stringify(result));
     }, 10000); // Wait 10 seconds to ensure content loads
 `;
 
-const zipcode = 90001
-
 const costcoJS = `
-setTimeout(() => {
-    const zipCodeAdded = document.querySelector('span#bdzip');
+    setTimeout(() => {
+        // Get all Products
+        const texts = Array.from(document.querySelectorAll('div.product'))
 
-    if (!zipCodeAdded) {
+        const result = []
 
-        // Click on Set Delivery Zip Code
-        const setZip = document.querySelector('[automation-id="changeDeliveryZipCodeLink"]')
-        setZip.click()
+        for (let i = 0; i < texts.length; i++) {
+            let storeInfo = {};
 
-        // Step 2: Click an input element
-        const zipcode = document.querySelector('div#popover374217').querySelector('input[type="text"]');
-        zipcode.click();
+            // Extract image src (if image exists)
+            let image = texts[i].querySelector("img");
+            storeInfo.image = image ? image.src : null; // Check if image exists before accessing src
 
-        // Step 3: Type in "12345"
-        zipcode.value = ${ zipcode };
+            // Extract the content from the span        
+            window.scrollTo(0, document.body.scrollHeight / 2);
 
-        // Step 4: Click on an input type submit element
-        zipcode.querySelector('input[type="submit"]').click();
+            let content = texts[i].querySelector("div.caption");
+            storeInfo.content = content ? content.innerText : null; // Ensure span exists
 
-        window.scrollTo(0, document.body.scrollHeight);
-
-        setTimeout(() => {
-            const texts = Array.from(document.querySelectorAll('div.product'))
-
-            const result = []
-
-            for (let i = 0; i < texts.length; i++) {
-                let storeInfo = {};
-
-                // Extract image src (if image exists)
-                let image = texts[i].querySelector("img");
-                storeInfo.image = image ? image.src : null; // Check if image exists before accessing src
-
-                // Extract the content from the span
-                let content = texts[i].querySelector("div.caption");
-                storeInfo.content = content ? content.innerText : null; // Ensure span exists
-
-                // Push the result to the array
-                if(storeInfo.content){
-                    if (storeInfo.content.includes("Dozen") || storeInfo.content.includes("ct"))
-                        result.push(storeInfo);
-                }
+            // Push the result to the array
+            if(storeInfo.content){
+                if (storeInfo.content.includes("Dozen") || storeInfo.content.includes("ct"))
+                    result.push(storeInfo);
             }
+        }
 
-            // Send the result array to React Native
-            window.ReactNativeWebView.postMessage(JSON.stringify(result));
-        }, 5000);
+        // Send the result array to React Native
+        window.ReactNativeWebView.postMessage(JSON.stringify(result));
 
-    } else {
-        setTimeout(() => {
-            const texts = Array.from(document.querySelectorAll('div.product'))
-
-            const result = []
-
-            for (let i = 0; i < texts.length; i++) {
-                let storeInfo = {};
-
-                // Extract image src (if image exists)
-                let image = texts[i].querySelector("img");
-                storeInfo.image = image ? image.src : null; // Check if image exists before accessing src
-
-                // Extract the content from the span
-                let content = texts[i].querySelector("div.caption");
-                storeInfo.content = content ? content.innerText : null; // Ensure span exists
-
-                // Push the result to the array
-                if(storeInfo.content){
-                    if (storeInfo.content.includes("Dozen") || storeInfo.content.includes("ct"))
-                        result.push(storeInfo);
-                }
-
-            }
-
-            // Send the result array to React Native
-            window.ReactNativeWebView.postMessage(JSON.stringify(result));
-        }, 4000);
-    }
-
-}, 4000); // Wait 3 seconds to ensure content loads
+    }, 4000); // Wait 4 seconds to ensure content loads
 `
 
 export {
