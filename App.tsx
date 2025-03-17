@@ -47,8 +47,8 @@ const App = () => {
     const { url, loading } = navState;
     console.log('Nav state:', { url, loading });
 
-    // Check if the desired page is loaded and not still loading
-    if (url === stores[index].url && !loading) {
+    // Check if page has finished loading
+    if (!loading) {
       webViewRefs[index].current?.injectJavaScript(stores[index].script);
     }
   };
@@ -72,13 +72,10 @@ const App = () => {
 
   // Handle messages from WebView
   const handleMessage = (index: number, storeName: string, event: WebViewMessageEvent, handleData: (data: StorePageInfo[]) => EggItemInfo[]) => {
-    console.log(storeName, event.nativeEvent.data)
-
     let currentTime: string = new Date().toDateString();
-
     let formattedData = handleData(JSON.parse(event.nativeEvent.data))
     let newData = {...scrapedData, [storeName]: formattedData};
-    setScrapedData(newData); // Update state with scraped data
+    setScrapedData(newData);
     setLastRetrievedDate(currentTime)
     handleLoadEnd(index);
   };
