@@ -36,7 +36,7 @@ const walmartJS = `
 
     // Send the result array to React Native
     window.ReactNativeWebView.postMessage(JSON.stringify(result));
-    }, 4000); // Wait 4 seconds to ensure content loads
+    }, 5000); // Wait 5 seconds to ensure content loads
 `;
 
 const targetJS = `
@@ -89,7 +89,7 @@ const targetJS = `
         }
         // Send the result array to React Native
         window.ReactNativeWebView.postMessage(JSON.stringify(result));
-    }, 10000); // Wait 10 seconds to ensure content loads
+    }, 12000); // Wait 12 seconds to ensure content loads
 `;
 
 const costcoJS = `
@@ -107,8 +107,6 @@ const costcoJS = `
             storeInfo.image = image ? image.src : null; // Check if image exists before accessing src
 
             // Extract the content from the span        
-            window.scrollTo(0, document.body.scrollHeight / 2);
-
             let content = texts[i].querySelector("div.caption");
             storeInfo.content = content ? content.innerText : null; // Ensure span exists
 
