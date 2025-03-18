@@ -80,6 +80,10 @@ const App = () => {
     handleLoadEnd(index);
   };
 
+  const handleConsole = (event: WebViewMessageEvent) => {
+    console.log('WebView message:', JSON.parse(event.nativeEvent.data));
+  }
+
 
   if(isAllLoaded){
     storeUpdatedPrices()
@@ -136,7 +140,7 @@ const App = () => {
         {lastRetrievedDate && <Text className='text-[16px] mt-1 text-green-400 font-semibold text-center'>Last Retrieved: {lastRetrievedDate}</Text>}
       </View>
 
-      {!locatedPrevPrices && !isAllLoaded && (
+      {!isLoading && !locatedPrevPrices && !isAllLoaded && (
         <ScrollView className='flex-1' nestedScrollEnabled>
           <Text className='text-center text-[36px] text-green-300 mb-4'>Stores Remaining:</Text>
           {stores.map((store, index) => {
@@ -147,8 +151,12 @@ const App = () => {
                   className='w-full h-[480px]'
                   ref={webViewRefs[index]}
                   source={{ uri: store.url }}
+                  javaScriptEnabled={true}
+                  domStorageEnabled={true}
+                  geolocationEnabled={true}
                   onNavigationStateChange={(navState) => handleNavigationStateChange(index, navState)}
                   onMessage={(e) => handleMessage(index, store.name, e, store.format)}
+                  //onMessage={(e) => handleConsole(e)}
                 />
               </View>
             )
