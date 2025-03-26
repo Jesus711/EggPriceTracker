@@ -45,7 +45,7 @@ const App = () => {
 
   const handleNavigationStateChange = (index: number, navState: WebViewNavigation) => {
     const { url, loading } = navState;
-    console.log('Nav state:', { url, loading });
+    //console.log('Nav state:', { url, loading });
 
     // Check if page has finished loading
     if (!loading) {
@@ -59,14 +59,14 @@ const App = () => {
       egg_prices: scrapedData
     }
     AsyncStorage.setItem("egg_prices", JSON.stringify(dataToStore))
-    console.log("Stored Updated Prices")
+    //console.log("Stored Updated Prices")
   }
 
   const handlePricesReload = () => {
     setScrapedData({});
     setLocatedPrevPrices(false);
     setLastRetrievedDate("");
-    console.log("Reloading...");
+    //console.log("Reloading...");
     setloadingStates(stores.map(() => (true)))
   }
 
@@ -99,7 +99,7 @@ const App = () => {
         let data: {date: string, egg_prices: {[key: string] : EggItemInfo[]}} = JSON.parse(last_prices)
         let lastRetrievedDate: string = data.date
         let egg_prices: {[key: string] : EggItemInfo[]} = data.egg_prices
-        console.log("Retrieved last Prices")
+        //console.log("Retrieved last Prices")
 
         if (egg_prices === undefined){
           setLocatedPrevPrices(false)
