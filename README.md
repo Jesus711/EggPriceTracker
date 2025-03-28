@@ -16,19 +16,19 @@ A **React Native** mobile application that uses **WebView** to scrape egg prices
 
 ## 📸 Screenshots  
 
-### 🏠 Home Screen  
-<img src="screenshots/app_icon.png" alt="App Icon" width="150">  
-<img src="screenshots/home_screen.png" alt="Home Screen" width="150">  
+### 🏠 App Icon and Home Screen  
+<img src="screenshots/app_icon.png" alt="App Icon" width="200">  
+<img src="screenshots/home_screen.png" alt="Home Screen" width="200">  
 
 ### 🌍 WebView Scraping in Action  
-<img src="screenshots/price_fetching1.png" alt="WebView Scraper" width="150">
-<img src="screenshots/price_fetching2.png" alt="WebView Scraper" width="150">
-<img src="screenshots/price_fetching3.png" alt="WebView Scraper" width="150">
+<img src="screenshots/price_fetching1.png" alt="WebView Scraper" width="200">
+<img src="screenshots/price_fetching2.png" alt="WebView Scraper" width="200">
+<img src="screenshots/price_fetching3.png" alt="WebView Scraper" width="200">
 
 ### WebScraped Results
-<img src="screenshots/fetch_results1.png" alt="Fetched results" width="150">
-<img src="screenshots/fetch_results2.png" alt="Fetched results" width="150">
-<img src="screenshots/fetch_results3.png" alt="Fetched results" width="150">
+<img src="screenshots/fetch_results1.png" alt="Fetched results" width="200">
+<img src="screenshots/fetch_results2.png" alt="Fetched results" width="200">
+<img src="screenshots/fetch_results3.png" alt="Fetched results" width="200">
 
 ## 🛠️ Technologies Used
 - **React Native** – Cross-platform mobile framework.
