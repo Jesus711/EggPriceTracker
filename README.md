@@ -36,3 +36,13 @@ A **React Native** mobile application that uses **WebView** to scrape egg prices
 - **NativeWind** – Tailwind CSS for React Native.
 - **React Native WebView** – Embedded web content.
 - **Async Storage**  – Persistent local storage.
+
+## 🐞 Known Issues  
+- On first launch when installed, Costco webscrapes without a zipcode, causing overflow on list and no prices. Fixes itself after reloading prices
+- Zipcode on stores are not always accurate. A zipcode is automatically added to the store's webview when loading website. Can be manually changed.
+
+## 🔮 Future Improvements  
+- Implement zipcode input
+- Enhance UI responsiveness across all screen sizes.  
+- Include other popular stores
+- Store up to 7 days of data and allow user to view any previous day
